@@ -6,7 +6,7 @@ interface TMeta {
 
 interface TResponse<T> {
     statusCode: number,
-    success: true,
+    success: boolean,
     message: string,
     data: T;
     meta?: TMeta

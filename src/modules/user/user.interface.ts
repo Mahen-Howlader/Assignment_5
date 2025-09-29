@@ -1,17 +1,18 @@
+import { Types } from "mongoose";
 
-export type Role = "admin" | "user" | "agent";
+export enum Role {
+  ADMIN = "ADMIN",
+  USER = "USER",
+  AGENT = "AGENT"
+};
 
 export interface IUser {
-  _id?: string;
+  _id : string,
   name: string;
   email: string;
-  phone?: string | null;
   password: string;
+  phone: string;
   role: Role;
-  blance: number;
-  walletId?: string;
-  isBlocked?: boolean;
-  isApproved?: boolean;
-  metadata?: Record<string, any>;
-  lastLoginAt?: Date | null;
+  isAgentApproved?: boolean;
+  walletId?: Types.ObjectId;
 };

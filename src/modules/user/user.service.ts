@@ -1,72 +1,54 @@
-import { IUser } from "./user.interface";
+import { IUser, Role } from "./user.interface";
 import bcrypt from 'bcryptjs';
 import { User } from "./user.model";
 import AppError from "../../error/AppError";
-import jwt, { SignOptions } from "jsonwebtoken";
-import config from "../../config";
-const createUser = async (payload: Partial<IUser>) => {
-  const { email, password, phone, ...rest } = payload;
+import { Wallet } from "../wallet/wallet.model";
 
-  if (!email || !password) {
-    throw new Error("Email and password Must be Provide");
+const getUserById = async (userId: string) => {
+  const user = await User.findById(userId).select("-password");
+
+  if (!user) {
+    throw new AppError(404, "User not found");
   }
-
-  const hashPassword = await bcrypt.hash(password, Number(process.env.BCRYPT_SALT_ROUND));
-
-  const user = await User.create({
-    email,
-    password: hashPassword,
-    phone,
-    ...rest
-  });
 
   return user;
 };
 
-const loginUser = async (payload: IUser) => {
-  const isUserExist = await User.findOne({ email: payload.email });
-  if (!isUserExist) {
-    throw new AppError(404, "User not found");
-  };
-  const checkPassword = await bcrypt.compare(
-    payload.password,
-    isUserExist.password
-  );
-  if (!checkPassword) {
-    throw new AppError(403, "Password not matched");
-  }
+const getAllUsers = () => {
+  return User.find({}).select("-password").lean(); // পাসওয়ার্ড দেখাবে না
+};
 
-  const jwtPayload = {
-    email: isUserExist.email,
-    role: isUserExist.role
-  }
+const toggleUserWallet = async (userId: string, block: boolean) => {
+  const wallet = await Wallet.findOne({ user: userId });
+  if (!wallet) throw new AppError(404, "User wallet not found");
+  wallet.isBlocked = block;
+  await wallet.save();
+  return { message: block ? "Wallet blocked" : "Wallet unblocked" };
+};
 
-  const accessToken = jwt.sign(jwtPayload, config.jwt.jwt_access_secret as string, 
-    {expiresIn: config.jwt.jwt_expires_secret} as SignOptions)
+const toggleAgentStatus = async (agentId: string, approve: boolean) => {
+    const agent = await User.findById(agentId);
+    if (!agent) throw new AppError(404, "Agent not found");
 
-  const refresToken = jwt.sign(jwtPayload, config.jwt.jwt_refresh_secret as string, 
-    {expiresIn : config.jwt.jwt_refresh_expires} as SignOptions
-  )
+    agent.isAgentApproved = approve;
+
+    // Type assertion 
+    agent.role = (approve ? "AGENT" : "USER") as Role;
+
+    await agent.save();
 
     return {
-      accessToken,
-      refresToken
-    }
-
-};
-
-const getUser = () => {
-
+        message: approve
+            ? "Agent approved and role set to AGENT"
+            : "Agent suspended and role set to USER",
+    };
 };
 
 
-const updateUser = () => {
-
-};
 
 export const UserService = {
-  createUser,
-  getUser,
-  updateUser,
-  loginUser
+  getUserById,
+  getAllUsers,
+  toggleUserWallet,
+  toggleAgentStatus
 };

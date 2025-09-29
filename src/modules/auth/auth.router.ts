@@ -1,7 +1,9 @@
 import { Router } from "express";
+import { AuthController } from "./auth.controller";
 
-const router = Router(); 
+const roauthRouteruter = Router(); 
 
-router.post("/login", AuthController.credentialsLogin);
-router.post("/refresh-token", AuthController.getNewAccessToken);
-router.post("/logout", AuthController.logout);
+roauthRouteruter.post("/login", AuthController.credentialsLogin);
+roauthRouteruter.post("/create", AuthController.registerUser)
+
+export default roauthRouteruter;

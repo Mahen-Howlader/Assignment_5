@@ -1,8 +1,10 @@
 import express, { Request, Response } from 'express';
 import { router } from './routes';
 import cors from 'cors';
+import notFound from './middlewares/notFound';
+import { globalErrorHandler } from './middlewares/globalErrorHandler';
 
-const app = express()
+export const app = express()
 
 app.use(cors());
 app.use(express.json());
@@ -12,4 +14,5 @@ app.get("/", (req: Request, res: Response) => {
     res.send("Hello World")
 });
 
-export default app;
+app.use(globalErrorHandler);
+app.use(notFound);

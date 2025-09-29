@@ -4,7 +4,7 @@ import config from "../config";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { User } from "../modules/user/user.model";
 
-export const auth = (role: string[]) => async (req: Request, res: Response, next: NextFunction) => {
+export const auth = (...role: string[]) => async (req: Request, res: Response, next: NextFunction) => {
     const token = req.headers.authorization;
     if (!token) throw new AppError(401, "Authorization not found");
 
@@ -19,5 +19,4 @@ export const auth = (role: string[]) => async (req: Request, res: Response, next
     req.user = isUserExsit;
 
     next();
-
 };
