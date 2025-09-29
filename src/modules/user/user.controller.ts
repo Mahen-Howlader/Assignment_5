@@ -31,6 +31,24 @@ const getAllUsers = catchAsync(async (req: Request, res: Response, next: NextFun
         data: users,
     });
 });
+const getAllAgents = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const users = await UserService.getAllAgents();
+    sendResponse(res, {
+        statusCode: 200,
+        success: true,
+        message: "All Agents fetched successfully",
+        data: users,
+    });
+});
+const getAllWallets = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const users = await UserService.getAllWallets();
+    sendResponse(res, {
+        statusCode: 200,
+        success: true,
+        message: "All getAllWallets fetched successfully",
+        data: users,
+    });
+});
 const toggleUserWallet = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const { block } = req.body;
     const userId = req.params.id;
@@ -55,12 +73,13 @@ const toggleAgentStatus = catchAsync(async (req: Request, res: Response, next: N
         message: result.message,
         data: result,
     });
-
 });
 
 export const UserController = {
     getMe,
     getAllUsers,
     toggleUserWallet,
-    toggleAgentStatus
+    toggleAgentStatus,
+    getAllAgents,
+    getAllWallets
 }

@@ -35,8 +35,22 @@ const specificTransaction = async (req: Request, res: Response) => {
         success: true
     });
 };
+const commissionTRX = async (req: Request, res: Response) => {
+    const id = req.user._id;
+    const data = await transactionService.commissionTRX(id);
+    sendResponse(res, {
+        data: data,
+        statusCode: httpStatus.OK,
+        message: "Specific Transactions a successful",
+        success: true
+    });
+};
+
+
+
 export const transactionsController = {
     transactionsMe,
     getAllTransactions,
-    specificTransaction
+    specificTransaction,
+    commissionTRX
 };

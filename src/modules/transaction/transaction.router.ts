@@ -8,6 +8,10 @@ const transactionsRouters = Router();
 
 
 transactionsRouters.get("/me", auth(Role.USER, Role.AGENT), transactionsController.transactionsMe)
+// AGENT 
+transactionsRouters.get("/commission", auth(Role.AGENT), transactionsController.commissionTRX)
+
+// ADMIN 
 transactionsRouters.get("/", auth(Role.ADMIN), transactionsController.getAllTransactions);
 transactionsRouters.get("/:id", auth(Role.ADMIN), transactionsController.specificTransaction);
 

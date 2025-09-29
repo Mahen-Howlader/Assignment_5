@@ -15,7 +15,13 @@ const getUserById = async (userId: string) => {
 };
 
 const getAllUsers = () => {
-  return User.find({}).select("-password").lean(); // পাসওয়ার্ড দেখাবে না
+  return User.find({ role: "USER" }).select("-password").lean();
+};
+const getAllAgents = () => {
+  return User.find({ role: "AGENT" }).select("-password").lean();
+};
+const getAllWallets = () => {
+  return Wallet.find();
 };
 
 const toggleUserWallet = async (userId: string, block: boolean) => {
@@ -27,21 +33,21 @@ const toggleUserWallet = async (userId: string, block: boolean) => {
 };
 
 const toggleAgentStatus = async (agentId: string, approve: boolean) => {
-    const agent = await User.findById(agentId);
-    if (!agent) throw new AppError(404, "Agent not found");
+  const agent = await User.findById(agentId);
+  if (!agent) throw new AppError(404, "Agent not found");
 
-    agent.isAgentApproved = approve;
+  agent.isAgentApproved = approve;
 
-    // Type assertion 
-    agent.role = (approve ? "AGENT" : "USER") as Role;
+  // Type assertion 
+  agent.role = (approve ? "AGENT" : "USER") as Role;
 
-    await agent.save();
+  await agent.save();
 
-    return {
-        message: approve
-            ? "Agent approved and role set to AGENT"
-            : "Agent suspended and role set to USER",
-    };
+  return {
+    message: approve
+      ? "Agent approved and role set to AGENT"
+      : "Agent suspended and role set to USER",
+  };
 };
 
 
@@ -50,5 +56,7 @@ export const UserService = {
   getUserById,
   getAllUsers,
   toggleUserWallet,
-  toggleAgentStatus
+  toggleAgentStatus,
+  getAllAgents,
+  getAllWallets
 };
