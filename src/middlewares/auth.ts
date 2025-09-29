@@ -1,22 +1,30 @@
 import { NextFunction, Request, Response } from "express";
 import AppError from "../error/AppError";
 import config from "../config";
-import jwt, { JwtPayload } from "jsonwebtoken";
 import { User } from "../modules/user/user.model";
+import { verifyToken } from "../utils/jwt";
+import httpStatus from 'http-status-codes';
 
 export const auth = (...role: string[]) => async (req: Request, res: Response, next: NextFunction) => {
-    const token = req.headers.authorization;
-    if (!token) throw new AppError(401, "Authorization not found");
+    try {
+        const accessToken = req.headers.authorization;
+        if (!accessToken) {
+            throw new AppError(403, "No Token Recived")
+        }
 
-    const isVerified = jwt.verify(token, config.jwt.jwt_access_secret!) as JwtPayload;
+        const verifyedToken = verifyToken(accessToken, config.jwt.jwt_access_secret!);
+        const isUserExist = await User.findOne({ email: verifyedToken.email });
+        if (!isUserExist) {
+            throw new AppError(httpStatus.BAD_REQUEST, "Email dose not exist");
+        };
 
-    const isUserExsit = await User.findOne({ email: isVerified.email });
-    if (!isUserExsit) throw new AppError(404, "User not Found");
+        if (!role.includes(verifyedToken.role))
+            throw new AppError(401, "You can't not access this recourse");
 
-    if (!role.includes(isVerified.role))
-        throw new AppError(401, "You can't not access this recourse");
+        req.user = isUserExist;
 
-    req.user = isUserExsit;
-
-    next();
+        next();
+    } catch (error) {
+        next(error);
+    }
 };

@@ -25,10 +25,10 @@ const userSchema = new Schema<IUser>(
     },
     phone: {
       type: String,
-      unique: true,
-      required: true
+      unique: [true, "Phone number must be unique"], 
+      required: [true, "Phone number is required"],
     },
-    isAgentApproved : {type : Boolean, default : false},
+    isAgentApproved: { type: Boolean, default: false },
     walletId: { type: Schema.Types.ObjectId, ref: "Wallet" },
   },
   { timestamps: true }
